@@ -19,11 +19,19 @@ public class Tag {
             Markov<String> wordModel = new Markov<>(1);
             Markov<String> posModel = new Markov<>(3);
 
+            int i = 0;
             for (String tweet; (tweet = reader.readLine()) != null; ) {
+                System.err.printf("\u001B[G\u001B[K%d", ++i);
                 List<Tagger.TaggedToken> tagged = tagger.tokenizeAndTag(tweet);
                 wordModel.feed(map(tagged, token -> token.token));
                 posModel.feed(map(tagged, token -> token.tag));
             }
+            System.err.printf("\n");
+
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("chains.dat"));
+            oos.writeObject(wordModel);
+            oos.writeObject(posModel);
+
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);

@@ -23,7 +23,7 @@ public class Markov<T> implements Serializable {
     symbols.add(END);
 
     for (int i = n; i < symbols.size(); i++) {
-      List<Symbol<T>> ngram = symbols.subList(i - n, i);
+      List<Symbol<T>> ngram = new ArrayList<>(symbols.subList(i - n, i));
       Symbol<T> current = symbols.get(i);
 
       if (!map.containsKey(ngram)) {
@@ -131,7 +131,7 @@ public class Markov<T> implements Serializable {
       return entry.getKey();
     }
 
-    private class Counter {
+    private class Counter implements Serializable {
       public int n = 0;
 
       public void increment() {
