@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class Markov<T> {
+public class Markov<T> implements Serializable {
   private Map<List<Symbol<T>>, WeightedList<T>> map = new HashMap<>();
   private int n;
 
@@ -19,7 +19,7 @@ public class Markov<T> {
     List<Symbol<T>> symbols = new ArrayList<>();
 
     for (int i = 0; i < n; i++) symbols.add(START);
-    for (T t : input) symbols.add(new Symbol(t));
+    for (T t : input) symbols.add(new Symbol<>(t));
     symbols.add(END);
 
     for (int i = n; i < symbols.size(); i++) {
@@ -43,7 +43,7 @@ public class Markov<T> {
   }
 
   /** Represents a single symbol (i.e. node) in a Markov chain. */
-  public static class Symbol<T> {
+  public static class Symbol<T> implements Serializable {
     private final T value;
 
     private Symbol(T value) {
@@ -93,7 +93,7 @@ public class Markov<T> {
     }
   }
 
-  private static class WeightedList<T> {
+  private static class WeightedList<T> implements Serializable {
     private Map<Symbol<T>, Counter> weights = new HashMap<>();
     private int size = 0;
 

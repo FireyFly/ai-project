@@ -2,7 +2,7 @@
 
 .PHONY: all clean
 
-all: class/Main.class
+all: class/Main.class class/Tag.class
 
 clean:
 	rm class/*.class
@@ -13,4 +13,10 @@ class:
 	mkdir class
 
 class/Main.class: src/Main.java class
-	javac -cp src -d class $<
+	javac -Xlint:unchecked -cp src -d class $<
+
+ark-tweet-nlp/ark-tweet-nlp/target/bin/ark-tweet-nlp-0.3.2.jar: ark-tweet-nlp
+	cd ark-tweet-nlp; mvn package
+
+class/Tag.class: src/Tag.java src/Markov.java class ark-tweet-nlp/ark-tweet-nlp/target/bin/ark-tweet-nlp-0.3.2.jar
+	javac -Xlint:unchecked -cp src:ark-tweet-nlp/ark-tweet-nlp/target/bin/* -d class $<
