@@ -1,9 +1,10 @@
 import java.io.*;
 import java.util.*;
+import java.util.stream.*;
 
 /** Represents a frequency distribution of T's by mapping T's to their number
  *  of occurrences. */
-public class FrequencyList<T> implements Serializable, Iterable<Utils.Pair<T, Double>> {
+public class FrequencyList<T> implements Serializable {
     private int totalCount = 0;
     private Map<T, Integer> counts = new HashMap<>();
 
@@ -18,9 +19,9 @@ public class FrequencyList<T> implements Serializable, Iterable<Utils.Pair<T, Do
         return count == null? 0 : (double) count / this.totalCount;
     }
 
-    public Iterator<Utils.Pair<T, Double>> iterator() {
-        return Utils.mapIterator(counts.entrySet().iterator(),
-                                 entry -> new Utils.Pair<>(entry.getKey(),
-                                                           (double) entry.getValue() / totalCount));
+    public Stream<Utils.Pair<T, Double>> stream() {
+      return counts.entrySet().stream()
+                   .map(entry -> new Utils.Pair<>(entry.getKey(),
+                                                  (double) entry.getValue() / totalCount));
     }
 }

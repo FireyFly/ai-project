@@ -47,5 +47,31 @@ public class Utils {
             this.fst = fst;
             this.snd = snd;
         }
+
+        public String toString() {
+            return "pair(" + this.fst + ", " + this.snd + ")";
+        }
+
+        public Pair<A,B> setFirst(A fst) {
+            this.fst = fst;
+            return this;
+        }
+
+        public Pair<A,B> setSecond(B snd) {
+            this.snd = snd;
+            return this;
+        }
+    }
+
+    public static <T> List<T> lastN(List<T> list, int n) {
+        List<T> res = new ArrayList<>();
+        if (list.size() < n) {
+            throw new IllegalArgumentException("Fewer than " + n + " values in list");
+        }
+
+        for (int i = 0; i < n; i++) {
+            res.add(list.get(list.size() - n + i));
+        }
+        return res;
     }
 }

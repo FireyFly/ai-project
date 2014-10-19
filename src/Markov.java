@@ -70,6 +70,10 @@ public class Markov<T> implements Serializable {
       return this.value;
     }
 
+    public boolean isSpecial() {
+      return false;
+    }
+
     private static class Special<T> extends Symbol<T> {
       private final String name;
       private final int hashCode;
@@ -86,6 +90,10 @@ public class Markov<T> implements Serializable {
 
       public int hashCode() {
         return this.hashCode;
+      }
+
+      public boolean isSpecial() {
+        return true;
       }
 
       public boolean equals(Object other) {

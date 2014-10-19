@@ -9,6 +9,11 @@ public class Main {
   }
 
   public static void main(String[] args) throws ClassNotFoundException {
+    if (args.length != 1) {
+      System.err.println("Usage: java Main <model>  -- use model <model> ('simple' or 'grammar')");
+      System.exit(1);
+    }
+
     try {
       ObjectInputStream ois = new ObjectInputStream(new FileInputStream("chains.dat"));
       Markov<String> wordChain = (Markov<String>) ois.readObject();
@@ -16,33 +21,26 @@ public class Main {
       Map<String, FrequencyList<String>> frequencyMap =
           (Map<String, FrequencyList<String>>) ois.readObject();
 
-      Model model = new Model.SimpleModel(wordChain);
+      Model model = args[0].equals("simple")?  new Model.SimpleModel(wordChain)
+                  : args[0].equals("grammar")? new Model.GrammarModel(wordChain, posChain, frequencyMap)
+                  :                            null;
 
-      Scanner sc = new Scanner(System.in);
-      while (sc.hasNextLine()) {
+      if (model == null) {
+        System.err.println("Couldn't construct model '" + args[0] + "'.");
+        System.exit(1);
+      }
+
+      for (Scanner sc = new Scanner(System.in); sc.hasNextLine(); ) {
         List<String> tokens = tokenize(new Scanner(sc.nextLine()));
         if (tokens.isEmpty()) continue;
 
-        List<String> ngram = lastN(tokens, wordChain.getN());
-        List<Markov.Symbol<String>> predictions = model.predictNext(ngram);
+        List<Markov.Symbol<String>> predictions = model.predictNext(tokens);
 
-        System.out.println(predictions);
+        System.out.println(Utils.map(predictions, sym -> sym.getValue()));
       }
 
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
-  }
-
-  private static List<String> lastN(List<String> list, int n) {
-    List<String> res = new ArrayList<>();
-    if (list.size() < n) {
-      throw new IllegalArgumentException("Fewer than " + n + " values in list");
-    }
-
-    for (int i = 0; i < n; i++) {
-      res.add(list.get(list.size() - n + i));
-    }
-    return res;
   }
 }
