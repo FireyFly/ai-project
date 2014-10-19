@@ -8,38 +8,41 @@ public class Main {
     return tokens;
   }
 
-  public static void main(String[] args) throws FileNotFoundException {
-    Markov<String> markov = new Markov<>(1);
+  public static void main(String[] args) throws ClassNotFoundException {
+    try {
+      ObjectInputStream ois = new ObjectInputStream(new FileInputStream("chains.dat"));
+      Markov<String> wordChain = (Markov<String>) ois.readObject();
+      Markov<String> posChain  = (Markov<String>) ois.readObject();
+      Map<String, FrequencyList<String>> frequencyMap =
+          (Map<String, FrequencyList<String>>) ois.readObject();
 
-    if (args.length != 2) {
-      System.err.printf("Usage: %s <file> <count>\n", "java Main");
-      System.exit(1);
-    }
+      Model model = new Model.SimpleModel(wordChain);
 
- // markov.feed(tokenize(new Scanner(new File(args[0]))));
+      Scanner sc = new Scanner(System.in);
+      while (sc.hasNextLine()) {
+        List<String> tokens = tokenize(new Scanner(sc.nextLine()));
+        if (tokens.isEmpty()) continue;
 
-    Scanner sc = new Scanner(new File(args[0]));
-    while (sc.hasNextLine()) {
-      markov.feed(tokenize(new Scanner(sc.nextLine())));
-    }
+        List<String> ngram = lastN(tokens, wordChain.getN());
+        List<Markov.Symbol<String>> predictions = model.predictNext(ngram);
 
-    int count = Integer.parseInt(args[1]);
-
-    /*
-    for (int i = 0; i < count; i++) {
-      LinkedList<Markov.Symbol<String>> context = new LinkedList<>();
-      Markov.Symbol<String> next = markov.START;
-      context.add(next);
-
-      System.out.print("");
-      while (next != markov.END) {
-        if (next != markov.START) System.out.printf("%s ", next.getValue());
-        context.addLast(next);
-        context.removeFirst();
-        next = markov.randomNext(context);
+        System.out.println(predictions);
       }
-      System.out.println();
+
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
     }
-    */
+  }
+
+  private static List<String> lastN(List<String> list, int n) {
+    List<String> res = new ArrayList<>();
+    if (list.size() < n) {
+      throw new IllegalArgumentException("Fewer than " + n + " values in list");
+    }
+
+    for (int i = 0; i < n; i++) {
+      res.add(list.get(list.size() - n + i));
+    }
+    return res;
   }
 }

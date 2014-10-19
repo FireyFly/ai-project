@@ -12,6 +12,11 @@ public class Markov<T> implements Serializable {
     this.n = n;
   }
 
+  /** Returns the `n` of this Markov model. */
+  public int getN() {
+    return this.n;
+  }
+
   /** Feed the given text to the Markov model, altering the probabilities with
    *  new information from `input`.
    */
@@ -42,7 +47,7 @@ public class Markov<T> implements Serializable {
   public static class Symbol<T> implements Serializable {
     private final T value;
 
-    private Symbol(T value) {
+    public Symbol(T value) {
       this.value = value;
     }
 

@@ -24,8 +24,8 @@ public class Learner {
             for (String tweet; (tweet = reader.readLine()) != null; ) {
                 System.err.printf("\u001B[G\u001B[K%d", ++i);
                 List<Tagger.TaggedToken> tagged = tagger.tokenizeAndTag(tweet);
-                wordModel.feed(map(tagged, token -> token.token));
-                posModel.feed(map(tagged, token -> token.tag));
+                wordModel.feed(Utils.map(tagged, token -> token.token));
+                posModel.feed(Utils.map(tagged, token -> token.tag));
 
                 for (Tagger.TaggedToken tt : tagged) {
                     if (!frequencyMap.containsKey(tt.token)) {
@@ -46,17 +46,5 @@ public class Learner {
             e.printStackTrace();
             System.exit(1);
         }
-    }
-
-    public static interface Mapper<F,T> {
-        public T mapOne(F elem);
-    }
-
-    public static <F,T> List<T> map(List<F> list, Mapper<F,T> mapper) {
-        List<T> newList = new ArrayList<>();
-        for (F elem : list) {
-            newList.add(mapper.mapOne(elem));
-        }
-        return newList;
     }
 }
