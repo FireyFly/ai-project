@@ -4,7 +4,7 @@ import java.util.*;
 
 import cmu.arktweetnlp.*;
 
-public class Tag {
+public class Learner {
     public static void main(String[] args) {
         if (args.length < 1) {
             System.err.println("Usage: ./train.sh <learning-data>");
@@ -18,6 +18,7 @@ public class Tag {
 
             Markov<String> wordModel = new Markov<>(1);
             Markov<String> posModel = new Markov<>(3);
+            Map<String, FrequencyList<String>> frequencyMap = new HashMap<>();
 
             int i = 0;
             for (String tweet; (tweet = reader.readLine()) != null; ) {
@@ -25,12 +26,21 @@ public class Tag {
                 List<Tagger.TaggedToken> tagged = tagger.tokenizeAndTag(tweet);
                 wordModel.feed(map(tagged, token -> token.token));
                 posModel.feed(map(tagged, token -> token.tag));
+
+                for (Tagger.TaggedToken tt : tagged) {
+                    if (!frequencyMap.containsKey(tt.token)) {
+                        frequencyMap.put(tt.token, new FrequencyList<String>());
+                    }
+
+                    frequencyMap.get(tt.token).add(tt.tag);
+                }
             }
             System.err.printf("\n");
 
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("chains.dat"));
             oos.writeObject(wordModel);
             oos.writeObject(posModel);
+            oos.writeObject(frequencyMap);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,5 +58,25 @@ public class Tag {
             newList.add(mapper.mapOne(elem));
         }
         return newList;
+    }
+
+    public static class FrequencyList<T> implements Serializable {
+        private int totalCount = 0;
+        private Map<T, Integer> counts = new HashMap<>();
+
+        public FrequencyList() {
+
+        }
+
+        public void add(T t) {
+            this.totalCount++;
+            Integer count = this.counts.get(t);
+            this.counts.put(t, count == null ? 1 : count + 1);
+        }
+
+        public double get(T t) {
+            Integer count = this.counts.get(t);
+            return count == null ? 0 : (double) count / this.totalCount;
+        }
     }
 }
