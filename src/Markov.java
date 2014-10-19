@@ -2,11 +2,11 @@ import java.io.*;
 import java.util.*;
 
 public class Markov<T> implements Serializable {
-  private Map<List<Symbol<T>>, WeightedList<T>> map = new HashMap<>();
+  private Map<List<Symbol<T>>, FrequencyList<Symbol<T>>> map = new HashMap<>();
   private int n;
 
   public final Symbol<T> START = new Symbol.Special<>("START", 1),
-                         END   = new Symbol.Special<>("END", 2);
+                         END   = new Symbol.Special<>("END",   2);
 
   public Markov(int n) {
     this.n = n;
@@ -27,19 +27,15 @@ public class Markov<T> implements Serializable {
       Symbol<T> current = symbols.get(i);
 
       if (!map.containsKey(ngram)) {
-        map.put(ngram, new WeightedList<T>());
+        map.put(ngram, new FrequencyList<Symbol<T>>());
       }
 
       map.get(ngram).add(current);
     }
   }
 
-  /** Choose a (weighted) random next node given an n-gram.
-    * Returns `null` if the n-gram isn't found in the chain.
-    */
-  public Symbol<T> randomNext(List<Symbol<T>> ngram) {
-    if (!map.containsKey(ngram)) return null;
-    return map.get(ngram).weightedRandomNext();
+  public FrequencyList<Symbol<T>> getNexts(List<Symbol<T>> ngram) {
+    return map.containsKey(ngram)? map.get(ngram) : new FrequencyList<>();
   }
 
   /** Represents a single symbol (i.e. node) in a Markov chain. */
@@ -89,53 +85,6 @@ public class Markov<T> implements Serializable {
 
       public boolean equals(Object other) {
         return this == other;
-      }
-    }
-  }
-
-  private static class WeightedList<T> implements Serializable {
-    private Map<Symbol<T>, Counter> weights = new HashMap<>();
-    private int size = 0;
-
-    private static Random rand = new Random();
-
-    private void add(Symbol<T> symbol) {
-      if (!weights.containsKey(symbol)) weights.put(symbol, new Counter());
-      weights.get(symbol).increment();
-      size++;
-    }
-
-    private int getSize() {
-      return size;
-    }
-
-    private int getWeight(Symbol<T> symbol) {
-      return weights.containsKey(symbol)? weights.get(symbol).n : 0;
-    }
-
-    private double getProbability(Symbol<T> symbol) {
-      if (size == 0) return 0;
-      return (double) this.getWeight(symbol) / (double) size;
-    }
-
-    private Symbol<T> weightedRandomNext() {
-      // TODO: use more cleverness?
-      Iterator<Map.Entry<Symbol<T>, Counter>> it = weights.entrySet().iterator();
-      Map.Entry<Symbol<T>, Counter> entry = null;
-
-      for (int v = rand.nextInt(this.size); v >= 0; v -= entry.getValue().n) {
-        // Guaranteed at least one iteration
-        entry = it.next();
-      }
-
-      return entry.getKey();
-    }
-
-    private class Counter implements Serializable {
-      public int n = 0;
-
-      public void increment() {
-        this.n++;
       }
     }
   }

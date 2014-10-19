@@ -59,24 +59,4 @@ public class Learner {
         }
         return newList;
     }
-
-    public static class FrequencyList<T> implements Serializable {
-        private int totalCount = 0;
-        private Map<T, Integer> counts = new HashMap<>();
-
-        public FrequencyList() {
-
-        }
-
-        public void add(T t) {
-            this.totalCount++;
-            Integer count = this.counts.get(t);
-            this.counts.put(t, count == null ? 1 : count + 1);
-        }
-
-        public double get(T t) {
-            Integer count = this.counts.get(t);
-            return count == null ? 0 : (double) count / this.totalCount;
-        }
-    }
 }

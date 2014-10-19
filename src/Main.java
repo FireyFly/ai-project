@@ -25,6 +25,7 @@ public class Main {
 
     int count = Integer.parseInt(args[1]);
 
+    /*
     for (int i = 0; i < count; i++) {
       LinkedList<Markov.Symbol<String>> context = new LinkedList<>();
       Markov.Symbol<String> next = markov.START;
@@ -39,5 +40,6 @@ public class Main {
       }
       System.out.println();
     }
+    */
   }
 }
