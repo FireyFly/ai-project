@@ -87,7 +87,7 @@ public class FrequencyList<T> implements Serializable {
 
     public ArrayList<Utils.Pair<T, Double>> toList() {
       return this.stream()
-                 .sorted((x,y) -> Double.compare(y.snd, x.snd))
+                 .sorted((x,y) -> Double.compare(y.e2, x.e2))
                  .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
 }

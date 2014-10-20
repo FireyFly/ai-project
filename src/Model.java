@@ -8,7 +8,7 @@ import cmu.arktweetnlp.*;
 public interface Model {
 
   /** Given N preceding words of context, predict the next word.  Returns a
-   *  list of predictions ordered by likelihood. */
+   *  stream of predictions ordered by likelihood. */
   public Stream<Utils.Pair<Markov.Symbol<String>, Double>> predictNext(String context);
 
   public static List<String> tokenize(String context) {
@@ -30,7 +30,6 @@ public interface Model {
     public Stream<Utils.Pair<Markov.Symbol<String>, Double>> predictNext(String context) {
       List<String> tokenizedContext = Model.tokenize(context);
       if (tokenizedContext.isEmpty()) {
-     // return Collections.emptyList();
         return Stream.of();
       }
 
@@ -39,10 +38,7 @@ public interface Model {
 
       return wordChain.getNexts(Utils.lastN(symbols, wordChain.getN()))
                       .stream()
-                      .sorted((x,y) -> Double.compare(y.snd, x.snd));
-                   // .map(x -> x.fst)
-                   // .collect(ArrayList::new, ArrayList::add,
-                   //          ArrayList::addAll);
+                      .sorted((x,y) -> Double.compare(y.e2, x.e2));
     }
   }
 
@@ -65,16 +61,9 @@ public interface Model {
       this.tagger.loadModel("model.20120919");
     }
 
-    private static <T> ArrayList<Utils.Pair<T, Double>> toList(FrequencyList<T> freqList) {
-      return freqList.stream()
-                     .sorted((x,y) -> Double.compare(y.snd, x.snd))
-                     .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
-    }
-
     public Stream<Utils.Pair<Markov.Symbol<String>, Double>> predictNext(String context) {
       List<Tagger.TaggedToken> tokenizedContext = this.tagger.tokenizeAndTag(context);
       if (tokenizedContext.isEmpty()) {
-     // return Collections.emptyList();
         return Stream.of();
       }
 
@@ -86,29 +75,27 @@ public interface Model {
       FrequencyList<Markov.Symbol<String>> nextPosFreq =
           posChain.getNexts(Utils.lastN(posSymbols, posChain.getN()));
 
-   // System.err.println();
+      // Debug output: token→POS mapping and POS frequency distribution
    // System.err.println(Utils.map(tokenizedContext,
    //     token -> token.token + "(" + token.tag + ")"));
-   // System.err.println(toList(nextPosFreq));
+   // System.err.println(nextPosFreq.toList());
 
       return wordChain
+               // Distribution of the word following the context in the word-chain
                .getNexts(Utils.lastN(wordSymbols, wordChain.getN()))
-               .stream()
-               .filter(x -> !x.fst.isSpecial()) // ignore special symbols
-            // .peek(x -> System.err.printf("%s (%f) %s %f\n", x.fst, x.snd,
-            //                              toList(posMap.get(x.fst.getValue())),
-            //                              posMap.get(x.fst.getValue())
-            //                                .stream()
-            //                                .mapToDouble(y -> nextPosFreq.get(new Markov.Symbol(y.fst)) * y.snd)
-            //                                .sum() * x.snd))
-               .map(x -> x.setSecond(
-                             posMap.get(x.fst.getValue())
+               .stream()                                     // as a stream of pairs
+               .filter(x -> !x.e1.isSpecial())               // ignore special next-symbols
+               .map(x -> Utils.triplet(x.e1, x.e2,           // compute weight
+                             posMap.get(x.e1.getValue())
                                .stream()
-                               .mapToDouble(y -> nextPosFreq.get(new Markov.Symbol(y.fst)) * y.snd)
-                               .sum() * x.snd))
-               .sorted((x,y) -> Double.compare(y.snd, x.snd));
-            // .collect(ArrayList::new, ArrayList::add,
-            //          ArrayList::addAll);
+                               .mapToDouble(y -> nextPosFreq.get(new Markov.Symbol(y.e1)) * y.e2)
+                               .sum() * x.e2))
+               .sorted((x,y) -> Double.compare(y.e3, x.e3))  // sort by weight
+               // Debug output: probability of a particular symbol to follow the context
+            // .peek(x -> System.err.printf("%s (%f) %s %f\n", x.e1, x.e2,
+            //                              posMap.get(x.e1.getValue()).toList(),
+            //                              x.e3))
+               .map(x -> Utils.pair(x.e1, x.e2));            // leave only pairs of (Symbol, weight)
     }
   }
 }

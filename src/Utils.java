@@ -2,10 +2,12 @@ import java.util.*;
 import java.util.stream.*;
 
 public class Utils {
+    //-- Mapping functions ------------------------------------------
     public static interface Mapper<F,T> {
         public T mapOne(F elem);
     }
 
+    /** Maps a function over a list. */
     public static <F,T> List<T> map(List<F> list, Mapper<F,T> mapper) {
         List<T> newList = new ArrayList<>();
         for (F elem : list) {
@@ -36,34 +38,56 @@ public class Utils {
         }
     }
 
+    /** Maps a function over elements of an iterator. */
     public static <F,T> Iterator<T> mapIterator(Iterator<F> it, Mapper<F,T> mapper) {
         return new MappedIterator<F,T>(it, mapper);
     }
 
-    public static class Pair<A,B> {
-        public A fst;
-        public B snd;
 
-        public Pair(A fst, B snd) {
-            this.fst = fst;
-            this.snd = snd;
+    //-- Tuples -----------------------------------------------------
+    /** Represents a 2-tuple. */
+    public static class Pair<A,B> {
+        public A e1;
+        public B e2;
+
+        public Pair(A e1, B e2) {
+            this.e1 = e1;
+            this.e2 = e2;
         }
 
         public String toString() {
-            return "(" + this.fst + ", " + this.snd + ")";
-        }
-
-        public Pair<A,B> setFirst(A fst) {
-            this.fst = fst;
-            return this;
-        }
-
-        public Pair<A,B> setSecond(B snd) {
-            this.snd = snd;
-            return this;
+            return "(" + this.e1 + ", " + this.e2 + ")";
         }
     }
 
+    public static <A,B> Pair<A,B> pair(A fst, B snd) {
+        return new Pair<>(fst, snd);
+    }
+
+    /** Represents a 3-tuple. */
+    public static class Triplet<A,B,C> {
+        public A e1;
+        public B e2;
+        public C e3;
+
+        public Triplet(A e1, B e2, C e3) {
+            this.e1 = e1;
+            this.e2 = e2;
+            this.e3 = e3;
+        }
+
+        public String toString() {
+            return "(" + this.e1 + ", " + this.e2 + ", " + this.e3 + ")";
+        }
+    }
+
+    public static <A,B,C> Triplet<A,B,C> triplet(A e1, B e2, C e3) {
+      return new Triplet<>(e1, e2, e3);
+    }
+
+
+    //-- List utilities ---------------------------------------------
+    /** Extracts the last `n` elements of a list. */
     public static <T> List<T> lastN(List<T> list, int n) {
         List<T> res = new ArrayList<>();
         if (list.size() < n) {
@@ -76,6 +100,7 @@ public class Utils {
         return res;
     }
 
+    /** Collects a stream into a list. */
     public static <T> ArrayList<T> toList(Stream<T> stream) {
       return stream.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }

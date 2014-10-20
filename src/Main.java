@@ -29,11 +29,7 @@ public class Main {
       for (Scanner sc = new Scanner(System.in); sc.hasNextLine(); ) {
         Stream<Utils.Pair<Markov.Symbol<String>, Double>> predictions =
             model.predictNext(sc.nextLine());
-     // if (predictions.isEmpty()) {
-     //     continue;
-     // }
 
-     // System.out.println(Utils.map(predictions, sym -> sym.getValue()));
         System.out.println(Utils.toList(predictions.limit(20)));
       }
 
