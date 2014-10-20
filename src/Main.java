@@ -26,12 +26,14 @@ public class Main {
       }
 
       for (Scanner sc = new Scanner(System.in); sc.hasNextLine(); ) {
-        List<Markov.Symbol<String>> predictions = model.predictNext(sc.nextLine());
+        List<Utils.Pair<Markov.Symbol<String>, Double>> predictions =
+            model.predictNext(sc.nextLine());
         if (predictions.isEmpty()) {
             continue;
         }
 
-        System.out.println(Utils.map(predictions, sym -> sym.getValue()));
+     // System.out.println(Utils.map(predictions, sym -> sym.getValue()));
+        System.out.println(predictions);
       }
 
     } catch (IOException ex) {

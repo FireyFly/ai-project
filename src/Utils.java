@@ -49,7 +49,7 @@ public class Utils {
         }
 
         public String toString() {
-            return "pair(" + this.fst + ", " + this.snd + ")";
+            return "(" + this.fst + ", " + this.snd + ")";
         }
 
         public Pair<A,B> setFirst(A fst) {

@@ -9,7 +9,7 @@ public interface Model {
 
   /** Given N preceding words of context, predict the next word.  Returns a
    *  list of predictions ordered by likelihood. */
-  public List<Markov.Symbol<String>> predictNext(String context);
+  public List<Utils.Pair<Markov.Symbol<String>, Double>> predictNext(String context);
 
   public static List<String> tokenize(String context) {
     Scanner sc = new Scanner(context);
@@ -27,7 +27,7 @@ public interface Model {
       this.wordChain = wordChain;
     }
 
-    public List<Markov.Symbol<String>> predictNext(String context) {
+    public List<Utils.Pair<Markov.Symbol<String>, Double>> predictNext(String context) {
       List<String> tokenizedContext = Model.tokenize(context);
       if (tokenizedContext.isEmpty()) {
         return Collections.emptyList();
@@ -38,8 +38,8 @@ public interface Model {
 
       return wordChain.getNexts(Utils.lastN(symbols, wordChain.getN()))
                       .stream()
-                      .sorted((x,y) -> Double.compare(x.snd, y.snd))
-                      .map(x -> x.fst)
+                      .sorted((x,y) -> Double.compare(y.snd, x.snd))
+                   // .map(x -> x.fst)
                       .collect(ArrayList::new, ArrayList::add,
                                ArrayList::addAll);
     }
@@ -64,7 +64,13 @@ public interface Model {
       this.tagger.loadModel("model.20120919");
     }
 
-    public List<Markov.Symbol<String>> predictNext(String context) {
+    private static <T> ArrayList<Utils.Pair<T, Double>> toList(FrequencyList<T> freqList) {
+      return freqList.stream()
+                     .sorted((x,y) -> Double.compare(y.snd, x.snd))
+                     .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+    }
+
+    public List<Utils.Pair<Markov.Symbol<String>, Double>> predictNext(String context) {
       List<Tagger.TaggedToken> tokenizedContext = this.tagger.tokenizeAndTag(context);
       if (tokenizedContext.isEmpty()) {
         return Collections.emptyList();
@@ -78,18 +84,28 @@ public interface Model {
       FrequencyList<Markov.Symbol<String>> nextPosFreq =
           posChain.getNexts(Utils.lastN(posSymbols, posChain.getN()));
 
+      System.err.println();
+      System.err.println(Utils.map(tokenizedContext,
+          token -> token.token + "(" + token.tag + ")"));
+      System.err.println(toList(nextPosFreq));
+
       return wordChain
                .getNexts(Utils.lastN(wordSymbols, wordChain.getN()))
                .stream()
                .filter(x -> !x.fst.isSpecial()) // ignore special symbols
-            // .peek(e -> System.err.println(e))
+               .peek(x -> System.err.printf("%s (%f) %s %f\n", x.fst, x.snd,
+                                            toList(posMap.get(x.fst.getValue())),
+                                            posMap.get(x.fst.getValue())
+                                              .stream()
+                                              .mapToDouble(y -> nextPosFreq.get(new Markov.Symbol(y.fst)) * y.snd)
+                                              .sum() * x.snd))
                .map(x -> x.setSecond(
                              posMap.get(x.fst.getValue())
                                .stream()
                                .mapToDouble(y -> nextPosFreq.get(new Markov.Symbol(y.fst)) * y.snd)
-                               .sum()))
-               .sorted((x,y) -> Double.compare(x.snd, y.snd))
-               .map(x -> x.fst)
+                               .sum() * x.snd))
+               .sorted((x,y) -> Double.compare(y.snd, x.snd))
+            // .map(x -> x.fst)
                .collect(ArrayList::new, ArrayList::add,
                         ArrayList::addAll);
     }
