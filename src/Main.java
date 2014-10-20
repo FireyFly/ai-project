@@ -2,11 +2,6 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-  private static List<String> tokenize(Scanner sc) {
-    List<String> tokens = new ArrayList<>();
-    while (sc.hasNext()) tokens.add(sc.next());
-    return tokens;
-  }
 
   public static void main(String[] args) throws ClassNotFoundException {
     if (args.length != 1) {
@@ -31,10 +26,10 @@ public class Main {
       }
 
       for (Scanner sc = new Scanner(System.in); sc.hasNextLine(); ) {
-        List<String> tokens = tokenize(new Scanner(sc.nextLine()));
-        if (tokens.isEmpty()) continue;
-
-        List<Markov.Symbol<String>> predictions = model.predictNext(tokens);
+        List<Markov.Symbol<String>> predictions = model.predictNext(sc.nextLine());
+        if (predictions.isEmpty()) {
+            continue;
+        }
 
         System.out.println(Utils.map(predictions, sym -> sym.getValue()));
       }
