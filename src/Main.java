@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.util.stream.*;
 
 public class Main {
 
@@ -26,14 +27,14 @@ public class Main {
       }
 
       for (Scanner sc = new Scanner(System.in); sc.hasNextLine(); ) {
-        List<Utils.Pair<Markov.Symbol<String>, Double>> predictions =
+        Stream<Utils.Pair<Markov.Symbol<String>, Double>> predictions =
             model.predictNext(sc.nextLine());
-        if (predictions.isEmpty()) {
-            continue;
-        }
+     // if (predictions.isEmpty()) {
+     //     continue;
+     // }
 
      // System.out.println(Utils.map(predictions, sym -> sym.getValue()));
-        System.out.println(predictions);
+        System.out.println(Utils.toList(predictions.limit(20)));
       }
 
     } catch (IOException ex) {

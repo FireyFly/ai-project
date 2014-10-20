@@ -24,4 +24,10 @@ public class FrequencyList<T> implements Serializable {
                    .map(entry -> new Utils.Pair<>(entry.getKey(),
                                                   (double) entry.getValue() / totalCount));
     }
+
+    public ArrayList<Utils.Pair<T, Double>> toList() {
+      return this.stream()
+                 .sorted((x,y) -> Double.compare(y.snd, x.snd))
+                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+    }
 }

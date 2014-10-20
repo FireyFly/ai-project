@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.*;
 
 public class Utils {
     public static interface Mapper<F,T> {
@@ -73,5 +74,9 @@ public class Utils {
             res.add(list.get(list.size() - n + i));
         }
         return res;
+    }
+
+    public static <T> ArrayList<T> toList(Stream<T> stream) {
+      return stream.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
 }
