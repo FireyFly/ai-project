@@ -50,18 +50,16 @@ public class SentenceGenerator {
             while (true) {
                 Stream<Utils.Pair<Markov.Symbol<String>, Double>> next = model.predictNext(line.toString());
                 double sum = next.mapToDouble(x -> x.e2).sum();
-                
-                Iterator<Utils.Pair<Markov.Symbol<String>, Double>> iter = next.iterator();
-                
-                double rand = Math.random();
+                List<Utils.Pair<Markov.Symbol<String>, Double>> list = Utils.toList(next);
+                double r = Math.random();
                 Markov.Symbol<String> found = null;
-                while(iter.hasNext()){
-                    Utils.Pair<Markov.Symbol<String>, Double> p = iter.next();
-                    if(rand <= p.e2/sum){
+                for(Utils.Pair<Markov.Symbol<String>, Double> p: list){
+                    double prop = p.e2/sum;
+                    if(r < prop){
                         found = p.e1;
                         break;
                     }
-                    rand -= (p.e2/sum);                 
+                    r -= prop;
                 }
                 if(found == null){
                     throw new IllegalStateException();
@@ -70,12 +68,14 @@ public class SentenceGenerator {
                 } else {
                     if(line.length() != 0){
                         line.append(" ");
+                        System.out.println(" ");
                     }
                     line.append(found.getValue());
+                    System.out.println(found.getValue());
                 }                  
             }
 
-            System.out.println(line);
+            
             
 
         } catch (IOException ex) {
