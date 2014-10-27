@@ -95,7 +95,7 @@ public interface Model {
             // .peek(x -> System.err.printf("%s (%f) %s %f\n", x.e1, x.e2,
             //                              posMap.get(x.e1.getValue()).toList(),
             //                              x.e3))
-               .map(x -> Utils.pair(x.e1, x.e2));            // leave only pairs of (Symbol, weight)
+               .map(x -> Utils.pair(x.e1, x.e3));            // leave only pairs of (Symbol, weight)
     }
   }
 }
