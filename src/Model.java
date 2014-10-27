@@ -53,12 +53,13 @@ public interface Model {
     private Tagger tagger = new Tagger();
 
     public GrammarModel(Markov<String> wordChain, Markov<String> posChain,
-                        Map<String, FrequencyList<String>> posMap) throws IOException {
+                        Map<String, FrequencyList<String>> posMap,
+                        String taggerModel) throws IOException {
       this.wordChain = wordChain;
       this.posChain = posChain;
       this.posMap = posMap;
 
-      this.tagger.loadModel("model.20120919");
+      this.tagger.loadModel(taggerModel);
     }
 
     public Stream<Utils.Pair<Markov.Symbol<String>, Double>> predictNext(String context) {

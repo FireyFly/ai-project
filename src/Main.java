@@ -12,13 +12,14 @@ public class Main {
 
     try {
       ObjectInputStream ois = new ObjectInputStream(new FileInputStream("chains.dat"));
+      String taggerModel = (String) ois.readObject();
       Markov<String> wordChain = (Markov<String>) ois.readObject();
       Markov<String> posChain  = (Markov<String>) ois.readObject();
       Map<String, FrequencyList<String>> frequencyMap =
           (Map<String, FrequencyList<String>>) ois.readObject();
 
       Model model = args[0].equals("simple")?  new Model.SimpleModel(wordChain)
-                  : args[0].equals("grammar")? new Model.GrammarModel(wordChain, posChain, frequencyMap)
+                  : args[0].equals("grammar")? new Model.GrammarModel(wordChain, posChain, frequencyMap, taggerModel)
                   :                            null;
 
       if (model == null) {
