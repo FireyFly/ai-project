@@ -32,10 +32,14 @@ public interface Model {
       if (tokenizedContext.isEmpty()) {
         return Stream.of();
       }
-
+      
       List<Markov.Symbol<String>> symbols =
           Utils.map(tokenizedContext, word -> new Markov.Symbol(word));
-
+      
+      if(symbols.size() < wordChain.getN()){
+          symbols.addAll(0, Collections.nCopies(wordChain.getN() - symbols.size(), wordChain.START));
+      }
+      
       return wordChain.getNexts(Utils.lastN(symbols, wordChain.getN()))
                       .stream()
                       .sorted((x,y) -> Double.compare(y.e2, x.e2));
@@ -72,7 +76,16 @@ public interface Model {
           Utils.map(tokenizedContext, token -> new Markov.Symbol(token.tag));
       List<Markov.Symbol<String>> wordSymbols =
           Utils.map(tokenizedContext, token -> new Markov.Symbol(token.token));
+      
+      if(wordSymbols.size() < wordChain.getN()){
+          wordSymbols.addAll(0, Collections.nCopies(wordChain.getN() - wordSymbols.size(), wordChain.START));
+      }
 
+      if(posSymbols.size() < posChain.getN()){
+          posSymbols.addAll(0, Collections.nCopies(posChain.getN() - posSymbols.size(), posChain.START));
+      }
+      
+      
       FrequencyList<Markov.Symbol<String>> nextPosFreq =
           posChain.getNexts(Utils.lastN(posSymbols, posChain.getN()));
 
