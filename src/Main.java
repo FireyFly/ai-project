@@ -26,11 +26,13 @@ public class Main {
         System.exit(1);
       }
 
+      System.err.printf("   ");
       for (Scanner sc = new Scanner(System.in); sc.hasNextLine(); ) {
         Stream<Utils.Pair<Markov.Symbol<String>, Double>> predictions =
             model.predictNext(sc.nextLine());
 
         System.out.println(Utils.toList(predictions.limit(20)));
+        System.err.printf("   ");
       }
 
     } catch (IOException ex) {
