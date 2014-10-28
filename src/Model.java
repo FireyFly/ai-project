@@ -90,9 +90,9 @@ public interface Model {
           posChain.getNexts(Utils.lastN(posSymbols, posChain.getN()));
 
       // Debug output: token→POS mapping and POS frequency distribution
-   // System.err.println(Utils.map(tokenizedContext,
-   //     token -> token.token + "(" + token.tag + ")"));
-   // System.err.println(nextPosFreq.toList());
+      //System.err.println(Utils.map(tokenizedContext,
+      //    token -> token.token + "(" + token.tag + ")"));
+      //System.err.println(nextPosFreq.toList());
 
       return wordChain
                // Distribution of the word following the context in the word-chain
