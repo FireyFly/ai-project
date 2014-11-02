@@ -38,7 +38,7 @@ Text is read from stdin and predictions are written to stdout.
 
 Usage: `./getposition.sh`
 
-A `chain.dat` file must exist prior to running `predict.sh`.
+A `chain.dat` file must exist prior to running `getposition.sh`.
 
 Reads a line of text on stdin, removes the last word, runs both the `simple` and the `grammar`
 model on the remaining text, and prints the index of the removed word in both prediction lists.
